@@ -9,8 +9,8 @@
 #(5)From the data set in step 4, creates a second, independent tidy data set with the average of each variable for each activity and each subject.
 
 rm(list=ls())
-
-setwd("/Users/Andy/DataSciCoursera/GettingCleaningData/CourseProject/")
+library(dplyr)
+setwd("/Users/Andy/DataSciCoursera/GettingCleaningData/GettingDataCourseProject/GettingDataCourseProject")
 
 # load test subject data
 testsubjects<-read.table("./UCI HAR Dataset/test/subject_test.txt")
@@ -35,14 +35,15 @@ testdat<-read.table("./UCI HAR Dataset/test/X_test.txt")
 testdat_small<-testdat[,c(mean_ids,std_ids)]
 # rename columns with descriptive names from features
 colnames(testdat_small)<-features$V2[c(mean_ids,std_ids)]
+# clean up variable names - make lower case
+colnames(testdat_small)<-tolower(names(testdat_small))
 
 # load activity codes for test
-#testlabels<-read.table("./UCI HAR Dataset/test/y_test.txt")
+testlabels<-read.table("./UCI HAR Dataset/test/y_test.txt")
 # load acitivty labels
-#activitylabels <- read.table(("./UCI HAR Dataset/activity_labels.txt"))
+activitylabels <- read.table(("./UCI HAR Dataset/activity_labels.txt"))
 # load activity codes for training
-#trainlabels<-read.table("./UCI HAR Dataset/train/y_train.txt")
-
+trainlabels<-read.table("./UCI HAR Dataset/train/y_train.txt")
 
 
 # load training data
@@ -51,10 +52,8 @@ traindat<-read.table("./UCI HAR Dataset/train/X_train.txt")
 traindat_small<-traindat[,c(mean_ids,std_ids)]
 # rename columns with descriptive names from features
 colnames(traindat_small)<-features$V2[c(mean_ids,std_ids)]
-# clean up variable names
-# remove periods
-# make lower case
-# remove parentheses
+# clean up variable names - make lower case
+colnames(traindat_small)<-tolower(names(traindat_small))
 
 # merge the test and train data sets together
 # variables will be be: subject,activity,type(train/test),mean...,std...
@@ -74,22 +73,15 @@ alldat$activity[which(alldat$activity==6)]<-"laying"
 # From the data set in step 4, creates a second, independent tidy data set with the average of each variable for each activity and each subject.
 # subject, activity, vars
 
-library(dplyr)
-#alldat<-tbl_df(alldat)
-#alldat<-group_by(alldat,subjectid,activity)
-# this computes mean for one variable, but can't get it to work for a loop
-#s<-summarise(alldat,mean=mean(tBodyAcc.mean...Y))
-
 # list of variables we want to compute mean for
 varlist<-names(alldat[4:82])
-#sapply(alldat,summarize(mean)
 
 ## loop through each id and activity, and compute mean for each variable
 # list of ids
 ids<-1:30
 # list of activities
 actlist<-unique(alldat$activity)
-# make a new data frame 'means' to store results in
+# make a new empty data frame 'means' to store results in
 col.names<-names(alldat)
 colClasses<-c("integer",rep("character",2),rep("double",79))
 means <- read.table(text = "",colClasses = colClasses,col.names = col.names)
